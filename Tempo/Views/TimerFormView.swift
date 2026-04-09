@@ -12,7 +12,8 @@ struct TimerFormView: View {
     @State private var pomodoroWorkMinutes: Int = 45
     @State private var pomodoroBreakMinutes: Int = 5
     @State private var pomodoroCycles: Int = 4
-    @State private var soundName: String = "Glass"
+    @State private var focusEnabled: Bool = false
+    @State private var soundName: String = "Blow"
 
     var body: some View {
         Form {
@@ -30,6 +31,12 @@ struct TimerFormView: View {
                 Section("Duration") {
                     Stepper("Duration: \(simpleDurationMinutes) min", value: $simpleDurationMinutes, in: 1...240)
                 }
+            }
+            Section("Focus") {
+                Toggle("Enable Focus mode on start", isOn: $focusEnabled)
+                Text("Requires \"Enable DND\" and \"Disable DND\" Shortcuts.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
@@ -51,6 +58,7 @@ struct TimerFormView: View {
         guard let item = existingItem else { return }
         name = item.name
         soundName = item.soundName
+        focusEnabled = item.focusEnabled
         switch item.type {
         case .simple(let d):
             isPomodoro = false
@@ -72,9 +80,10 @@ struct TimerFormView: View {
             )
             : .simple(duration: Double(simpleDurationMinutes) * 60)
 
-        var item = existingItem ?? TimerItem(name: name, type: type, focusEnabled: false)
+        var item = existingItem ?? TimerItem(name: name, type: type, focusEnabled: focusEnabled)
         item.name = name
         item.type = type
+        item.focusEnabled = focusEnabled
         item.soundName = soundName
         onSave(item)
         dismiss()

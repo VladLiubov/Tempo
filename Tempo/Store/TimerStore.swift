@@ -37,6 +37,9 @@ class TimerStore: ObservableObject {
         NotificationService.requestPermission()
         onTimerComplete = { item in
             NotificationService.scheduleCompletion(for: item)
+            if item.focusEnabled {
+                FocusService.disableFocus()
+            }
         }
     }
 
@@ -83,6 +86,9 @@ class TimerStore: ObservableObject {
             cyclesCompleted: 0,
             isPaused: false
         )
+        if item.focusEnabled {
+            FocusService.enableFocus()
+        }
         startTicking()
     }
 

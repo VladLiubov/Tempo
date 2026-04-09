@@ -1,3 +1,4 @@
+import AppKit
 import UserNotifications
 
 /// Manages local notifications for timer completion events.
@@ -12,15 +13,17 @@ struct NotificationService {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
 
-    /// Schedules a local notification that fires almost immediately to signal
-    /// that `item` has finished. Skipped when the active Focus mode blocks Tempo notifications.
+    /// Plays the completion sound directly and schedules a local notification banner.
+    /// The sound plays immediately via `NSSound` so it works even when the app is frontmost.
+    /// The notification banner is skipped when the active Focus mode blocks Tempo notifications.
     static func scheduleCompletion(for item: TimerItem) {
+        NSSound(named: NSSound.Name(item.soundName))?.play()
+
         guard focusNotificationsAllowed else { return }
 
         let content = UNMutableNotificationContent()
         content.title = item.name
         content.body = "Time's up!"
-        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: item.soundName))
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
         let request = UNNotificationRequest(
